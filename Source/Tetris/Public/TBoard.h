@@ -29,8 +29,16 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USceneComponent* SpawnMarker;
 
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UBoxComponent* Base;
+
+
 	UPROPERTY(EditDefaultsOnly, Category = "Board")
 	TArray<TSubclassOf<ATTetromino>> TetrominoClasses;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Board")
+	float DescendRate = 1.0f;
+
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,5 +50,7 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	float GetDescendRate();
 
 };

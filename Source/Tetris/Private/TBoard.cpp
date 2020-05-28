@@ -14,6 +14,12 @@ ATBoard::ATBoard()
 
 	SpawnMarker = CreateDefaultSubobject<USceneComponent>(TEXT("Spawn Marker"));
 	SpawnMarker->SetupAttachment(RootComponent);
+
+	Base = CreateDefaultSubobject<UBoxComponent>(TEXT("Base"));
+	Base->SetCollisionObjectType(STOPPING_ACTOR);
+	Base->SetCollisionResponseToAllChannels(ECR_Ignore);
+	Base->SetCollisionResponseToChannel(STOPPING_ACTOR, ECR_Overlap);
+	Base->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -39,6 +45,8 @@ void ATBoard::SpawnTetromino()
 	}
 	int randIndex = FMath::RandRange(0, TetrominoClasses.Num() - 1);
 	ATTetromino* Tetromino = GetWorld()->SpawnActor<ATTetromino>(TetrominoClasses[randIndex], SpawnMarker->GetComponentLocation(), FRotator::ZeroRotator);
+	Tetromino->SetOwner(this);
+	Tetromino->Init();
 }
 
 void ATBoard::ClearRow(int Row)
@@ -56,5 +64,10 @@ void ATBoard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+float ATBoard::GetDescendRate()
+{
+	return DescendRate;
 }
 
