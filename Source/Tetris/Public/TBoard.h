@@ -8,6 +8,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "TTetromino.h"
+#include "Camera/CameraComponent.h"
 #include "TBoard.generated.h"
 
 UCLASS()
@@ -31,6 +32,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	UBoxComponent* Base;
+
+	UPROPERTY(VisibleAnywhere, Category = "Components")
+	UCameraComponent* Camera;
 
 
 	UPROPERTY(EditDefaultsOnly, Category = "Board")

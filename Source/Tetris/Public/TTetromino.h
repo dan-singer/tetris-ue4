@@ -6,7 +6,10 @@
 #include "GameFramework/Pawn.h"
 #include "Tetris/Tetris.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/FloatingPawnMovement.h"
 #include "TTetromino.generated.h"
+
+class ATBoard;
 
 UCLASS()
 class TETRIS_API ATTetromino : public APawn
@@ -23,21 +26,11 @@ public:
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* BlockA;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* BlockB;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* BlockC;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	UStaticMeshComponent* BlockD;
-
-	UPROPERTY(VisibleAnywhere, Category = "Components")
-	USceneComponent* Holder;
+	UStaticMeshComponent* MeshComp;
 
 	FTimerHandle DescendTimer;
+
+	ATBoard* BoardOwner;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -45,7 +38,10 @@ protected:
 	UFUNCTION()
 	void Descend();
 
-	UStaticMeshComponent* MakeBlock(FName Name);
+	void HandleLeft();
+	void HandleRight();
+	void HandleUp();
+	void HandleDown();
 
 public:	
 	// Called every frame
@@ -55,5 +51,7 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void Init();
+
+	void SetBoardOwner(ATBoard* Board);
 
 };

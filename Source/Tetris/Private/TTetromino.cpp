@@ -4,6 +4,7 @@
 #include "Tetris/Public/TTetromino.h"
 #include "TimerManager.h"
 #include "../Public/TBoard.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATTetromino::ATTetromino()
@@ -11,13 +12,9 @@ ATTetromino::ATTetromino()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	Holder = CreateDefaultSubobject<USceneComponent>(TEXT("Holder"));
-	RootComponent = Holder;
-
-	BlockA = MakeBlock("Block A");
-	BlockB = MakeBlock("Block B");
-	BlockC = MakeBlock("Block C");
-	BlockD = MakeBlock("Block D");
+	MeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh Component"));
+	MeshComp->SetCollisionObjectType(STOPPING_ACTOR);
+	RootComponent = MeshComp;
 }
 
 void ATTetromino::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
@@ -35,16 +32,32 @@ void ATTetromino::BeginPlay()
 
 void ATTetromino::Descend()
 {
-	FVector CurLocation = GetActorLocation();
-	SetActorLocation(CurLocation + -FVector::UpVector * BLOCK_SIZE);
+	FVector CurrentLocation = GetActorLocation();
+	SetActorLocation(CurrentLocation + FVector::DownVector * BLOCK_SIZE, true);
 }
 
-UStaticMeshComponent* ATTetromino::MakeBlock(FName Name)
+
+void ATTetromino::HandleLeft()
 {
-	UStaticMeshComponent* Block = CreateDefaultSubobject<UStaticMeshComponent>(Name);
-	Block->SetCollisionObjectType(STOPPING_ACTOR);
-	Block->SetupAttachment(RootComponent);
-	return Block;
+	FVector CurLocation = GetActorLocation();
+	SetActorLocation(CurLocation + FVector::BackwardVector * BLOCK_SIZE, true);
+}
+
+void ATTetromino::HandleRight()
+{
+	FVector CurLocation = GetActorLocation();
+	SetActorLocation(CurLocation + FVector::ForwardVector * BLOCK_SIZE, true);
+}
+
+void ATTetromino::HandleUp()
+{
+
+}
+
+void ATTetromino::HandleDown()
+{
+	FVector CurLocation = GetActorLocation();
+	SetActorLocation(CurLocation + FVector::DownVector * BLOCK_SIZE, true);
 }
 
 // Called every frame
@@ -58,12 +71,20 @@ void ATTetromino::Tick(float DeltaTime)
 void ATTetromino::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Left", EInputEvent::IE_Pressed, this, &ATTetromino::HandleLeft);
+	PlayerInputComponent->BindAction("Right", EInputEvent::IE_Pressed, this, &ATTetromino::HandleRight);
+	PlayerInputComponent->BindAction("Up", EInputEvent::IE_Pressed, this, &ATTetromino::HandleUp);
+	PlayerInputComponent->BindAction("Down", EInputEvent::IE_Pressed, this, &ATTetromino::HandleDown);
 
 }
 
 void ATTetromino::Init()
 {
-	ATBoard* Board = Cast<ATBoard>(GetOwner());
-	GetWorldTimerManager().SetTimer(DescendTimer, this, &ATTetromino::Descend, Board->GetDescendRate(), true);
+	GetWorldTimerManager().SetTimer(DescendTimer, this, &ATTetromino::Descend, BoardOwner->GetDescendRate(), true);
+}
+
+void ATTetromino::SetBoardOwner(ATBoard* Board)
+{
+	BoardOwner = Board;
 }
 

@@ -2,6 +2,7 @@
 
 #include "Tetris/Public/TBoard.h"
 #include "Engine/World.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ATBoard::ATBoard()
@@ -20,6 +21,9 @@ ATBoard::ATBoard()
 	Base->SetCollisionResponseToAllChannels(ECR_Ignore);
 	Base->SetCollisionResponseToChannel(STOPPING_ACTOR, ECR_Overlap);
 	Base->SetupAttachment(RootComponent);
+
+	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
+	Camera->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -45,7 +49,12 @@ void ATBoard::SpawnTetromino()
 	}
 	int randIndex = FMath::RandRange(0, TetrominoClasses.Num() - 1);
 	ATTetromino* Tetromino = GetWorld()->SpawnActor<ATTetromino>(TetrominoClasses[randIndex], SpawnMarker->GetComponentLocation(), FRotator::ZeroRotator);
-	Tetromino->SetOwner(this);
+	Tetromino->SetBoardOwner(this);
+
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	PC->Possess(Tetromino);
+	PC->SetViewTarget(this);
+
 	Tetromino->Init();
 }
 
