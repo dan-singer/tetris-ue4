@@ -65,13 +65,17 @@ void ATTetromino::HandleUp()
 {
 	AddActorLocalRotation(FRotator(-90.0f,0,0), true);
 
-	OriginDelta = OriginDelta.RotateAngleAxis(-90.0f, GetActorRightVector());
+	OriginDelta = OriginDelta.RotateAngleAxis(-90.0f, FVector::RightVector);
+
 
 	// Snap to grid
 	FVector OriginLocation = GetActorLocation() + OriginDelta;
+
+	DrawDebugSphere(GetWorld(), OriginLocation, 32.0f, 16, FColor::Red, false, 1.0f);
+
 	OriginLocation.X = (int)(OriginLocation.X) / BLOCK_SIZE * BLOCK_SIZE;
 	OriginLocation.Z = (int)(OriginLocation.Z) / BLOCK_SIZE * BLOCK_SIZE;
-	SetActorLocation(OriginLocation - OriginDelta, true);
+	SetActorLocation(OriginLocation - OriginDelta);
 }
 
 void ATTetromino::HandleDown()

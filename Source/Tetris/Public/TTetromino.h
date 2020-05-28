@@ -11,6 +11,7 @@
 
 class ATBoard;
 
+
 UCLASS()
 class TETRIS_API ATTetromino : public APawn
 {
@@ -23,6 +24,9 @@ public:
 
 	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
 
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
 protected:
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
@@ -31,6 +35,10 @@ protected:
 	FTimerHandle DescendTimer;
 
 	ATBoard* BoardOwner;
+
+	USceneComponent* Pivot;
+
+	FVector OriginDelta;
 
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -43,7 +51,10 @@ protected:
 	void HandleUp();
 	void HandleDown();
 
+	void EndTurn();
+
 public:	
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 

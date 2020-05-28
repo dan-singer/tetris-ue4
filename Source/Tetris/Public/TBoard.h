@@ -57,4 +57,6 @@ public:
 
 	float GetDescendRate();
 
+	void EndTurn(ATTetromino* Tetromino);
+
 };

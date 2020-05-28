@@ -80,3 +80,11 @@ float ATBoard::GetDescendRate()
 	return DescendRate;
 }
 
+void ATBoard::EndTurn(ATTetromino* Tetromino)
+{
+	APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+	PC->bAutoManageActiveCameraTarget = false;
+	PC->UnPossess();
+	PC->SetViewTarget(this);
+}
+
