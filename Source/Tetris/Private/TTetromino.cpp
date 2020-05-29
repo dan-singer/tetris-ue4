@@ -23,15 +23,12 @@ ATTetromino::ATTetromino()
 	
 }
 
-void ATTetromino::NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit)
-{
-	Super::NotifyHit(MyComp, Other, OtherComp, bSelfMoved, HitLocation, HitNormal, NormalImpulse, Hit);
-	UE_LOG(LogTemp, Warning, TEXT("OUCH!"));
-}
+
 
 void ATTetromino::NotifyActorBeginOverlap(AActor* OtherActor)
 {
 	Super::NotifyActorBeginOverlap(OtherActor);
+	SnapToGrid();
 	EndTurn();
 }
 
@@ -45,7 +42,11 @@ void ATTetromino::BeginPlay()
 void ATTetromino::Descend()
 {
 	FVector CurrentLocation = GetActorLocation();
-	SetActorLocation(CurrentLocation + FVector::DownVector * BLOCK_SIZE, true);
+	if (!SetActorLocation(CurrentLocation + FVector::DownVector * BLOCK_SIZE, true))
+	{
+		SnapToGrid();
+		EndTurn();
+	}
 }
 
 
@@ -64,20 +65,14 @@ void ATTetromino::HandleRight()
 void ATTetromino::HandleUp()
 {
 	AddActorLocalRotation(FRotator(-90.0f,0,0), true);
-
-	OriginDelta = OriginDelta.RotateAngleAxis(-90.0f, GetActorRightVector());
-
-	// Snap to grid
-	FVector OriginLocation = GetActorLocation() + OriginDelta;
-	OriginLocation.X = (int)(OriginLocation.X) / BLOCK_SIZE * BLOCK_SIZE;
-	OriginLocation.Z = (int)(OriginLocation.Z) / BLOCK_SIZE * BLOCK_SIZE;
-	SetActorLocation(OriginLocation - OriginDelta, true);
+	SnapToGrid();
 }
 
 void ATTetromino::HandleDown()
 {
-	FVector CurLocation = GetActorLocation();
-	SetActorLocation(CurLocation + FVector::DownVector * BLOCK_SIZE, true);
+	GetWorldTimerManager().ClearTimer(DescendTimer);
+	GetWorldTimerManager().SetTimer(DescendTimer, this, &ATTetromino::Descend, BoardOwner->GetDescendRate(), true);
+	Descend();
 }
 
 void ATTetromino::EndTurn()
@@ -86,11 +81,21 @@ void ATTetromino::EndTurn()
 	BoardOwner->EndTurn(this);
 }
 
+void ATTetromino::SnapToGrid()
+{
+	FBox BB = MeshComp->CalcBounds(GetTransform()).GetBox();
+
+	FVector OriginLocation = FVector(BB.Min.X, BB.Max.Y, BB.Max.Z);
+	FVector ToCenter = GetActorLocation() - OriginLocation;
+	OriginLocation.X = FMath::RoundToInt(OriginLocation.X / BLOCK_SIZE) * BLOCK_SIZE;
+	OriginLocation.Z = FMath::RoundToInt(OriginLocation.Z / BLOCK_SIZE) * BLOCK_SIZE;
+	SetActorLocation(OriginLocation + ToCenter, true);
+}
+
 // Called every frame
 void ATTetromino::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input

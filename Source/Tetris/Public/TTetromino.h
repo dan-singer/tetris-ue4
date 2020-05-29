@@ -21,10 +21,6 @@ public:
 	// Sets default values for this pawn's properties
 	ATTetromino();
 
-
-	virtual void NotifyHit(class UPrimitiveComponent* MyComp, AActor* Other, class UPrimitiveComponent* OtherComp, bool bSelfMoved, FVector HitLocation, FVector HitNormal, FVector NormalImpulse, const FHitResult& Hit) override;
-
-
 	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
 
 protected:
@@ -52,6 +48,8 @@ protected:
 	void HandleDown();
 
 	void EndTurn();
+
+	void SnapToGrid();
 
 public:	
 

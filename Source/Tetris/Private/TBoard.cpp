@@ -86,5 +86,6 @@ void ATBoard::EndTurn(ATTetromino* Tetromino)
 	PC->bAutoManageActiveCameraTarget = false;
 	PC->UnPossess();
 	PC->SetViewTarget(this);
+	SpawnTetromino();
 }
 
